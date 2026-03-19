@@ -3,8 +3,9 @@
 import { cn } from '@/lib/utils';
 import { Briefcase, AlertTriangle, Play, CalendarClock, DollarSign, Activity, ArrowUpRight, ArrowDownRight, ArrowRight, MessageSquareCode } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
-const PROJECTS = [
+const MOCK_PROJECTS = [
   { id: 'child-actor-101', name: 'Child Actor 101', jobs: 4, rev: 1250, revTrend: 'up', alerts: 0, lastEvent: 'Content Publisher', lastActivity: '12m ago', momentum: 'Exploding', needsFounder: false },
   { id: 'directory', name: 'Directory', jobs: 1, rev: 45, revTrend: 'flat', alerts: 1, alertSummary: 'Scraper failed on site 3', lastEvent: 'Scraper Routine', lastActivity: '1h ago', momentum: 'Growing', needsFounder: true },
   { id: 'prep101', name: 'Prep101', jobs: 12, rev: 4200, revTrend: 'up', alerts: 0, lastEvent: 'SEO Optimizer', lastActivity: '4m ago', momentum: 'Growing', needsFounder: true },
@@ -16,6 +17,17 @@ const PROJECTS = [
 ];
 
 export default function ProjectGridPage() {
+  const [projects, setProjects] = useState<any[]>(MOCK_PROJECTS);
+  
+  useEffect(() => {
+    // Attempt to fetch live data from the Engine
+    fetch('http://localhost:8000/api/v1/projects')
+       .then(res => res.json())
+       .then(data => {
+          if (Array.isArray(data) && data.length > 0) setProjects(data);
+       })
+       .catch(err => console.warn("Engine API offline, falling back to mock UI."));
+  }, []);
   const getMomentumStyle = (momentum: string, alerts: number) => {
     // Alert severity color glow overrides general glow if there are alerts
     const glow = alerts > 0 ? 'shadow-[0_0_20px_rgba(239,68,68,0.25)] border-rose-500/30' : 
@@ -47,7 +59,7 @@ export default function ProjectGridPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        {PROJECTS.map((proj) => {
+        {projects.map((proj: any) => {
           const mTheme = getMomentumStyle(proj.momentum, proj.alerts);
           return (
           <Link href={`/projects/${proj.id}`} key={proj.id} className="group block">
