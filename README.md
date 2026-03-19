@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OpenClaw Mission Control
 
-## Getting Started
+A read-only observer interface (operational dashboard) for the OpenClaw multi-agent AI framework. 
 
-First, run the development server:
+**Mission Control** is purely an observer. If it crashes or goes offline, the core OpenClaw engine running on the local node will not be affected. It relies on lightweight API routes (simulated in this repo) to poll data from the gateway.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Environment Variables
+
+Copy the `.env.example` to `.env` or set it in your environment:
+
+```env
+MISSION_CONTROL_TOKEN=your_secure_random_token_here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+To access the UI via the browser (since there is no login form), you can initially visit:
+`http://localhost:3000/?auth=your_secure_random_token_here`
+The middleware will set a secure cookie allowing you subsequent access.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Running Locally via Node
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. `npm install`
+2. `npm run dev`
+3. Open `http://localhost:3000/?auth=MISSION_CONTROL_TOKEN` (Use "MISSION_CONTROL_TOKEN" if no env variable is set).
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+The app uses standard Next.js (App Router) and can be deployed anywhere Node.js or Docker is supported.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### VPS Deployment via Docker
+A lean multi-stage `Dockerfile` is included. It leverages Next.js standalone output mode.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. First, enable standalone mode in `next.config.ts`:
+```ts
+import type { NextConfig } from "next";
 
-## Deploy on Vercel
+const config: NextConfig = {
+  output: "standalone",
+};
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+export default config;
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. Build the Docker image:
+```bash
+docker build -t openclaw-mission-control .
+```
+
+3. Run the container:
+```bash
+docker run -p 3000:3000 -e MISSION_CONTROL_TOKEN=super_secret_token_123 openclaw-mission-control
+```
+
+If deploying behind a reverse proxy (e.g., Nginx, Traefik), route traffic to port `3000`.
