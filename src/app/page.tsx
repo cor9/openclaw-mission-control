@@ -21,7 +21,8 @@ export default function ProjectGridPage() {
   
   useEffect(() => {
     // Attempt to fetch live data from the Engine
-    fetch('http://localhost:8000/api/v1/projects')
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    fetch(`http://${host}:8000/api/v1/projects`)
        .then(res => res.json())
        .then(data => {
           if (Array.isArray(data) && data.length > 0) setProjects(data);
