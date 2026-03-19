@@ -1,7 +1,10 @@
 # OpenClaw Mission Control — Integration Specification
 
 **To the AI Agent reading this:** 
-Your mission is to replace the hardcoded frontend dummy data inside this Next.js 16 (App Router) project with live telemetry streams from the core OpenClaw engine.
+Your mission is strictly limited to building backend REST API routes that conform to the exact JSON schemas outlined below.
+
+🚨 **STRICT INSTRUCTION: DO NOT EDIT ANY .tsx FRONTEND FILES!** 🚨
+The Next.js React frontend (including `page.tsx` and all components) has already been 100% built, styled in dark-mode, and pre-wired with `useEffect` fetch logic. If you rewrite or modify any frontend `.tsx` files, you will fatally destroy the visual aesthetic and crash the app. Your ONLY job is to build the engine backend API that the frontend is already calling (`http://localhost:8000/api/v1/...`).
 
 ## 1. High-Level Architecture
 Mission Control operates exclusively as a "Read-First" telemetry dashboard (Frontend). The core OpenClaw execution engine (Backend) must expose an API gateway for Mission Control to poll. 
@@ -79,9 +82,9 @@ The core OpenClaw engine must mount the following routes so Mission Control can 
 2. Build an API router (FastAPI, Express, etc.) exposing `/api/v1/projects` and `/api/v1/projects/{slug}/command`.
 3. Map the live engine state, revenue DBs, and active agent statuses into the exact JSON JSON schemas defined above.
 
-**Phase 2: Hydrate Mission Control (Frontend)**
-1. Open `src/app/page.tsx` in Mission Control. Delete the hardcoded `const PROJECTS` mock. Write a `useEffect` fetch hook to hit `http://{OPENCLAW_ENGINE_IP}:8000/api/v1/projects`.
-2. Open `src/app/projects/[slug]/page.tsx`. Delete the hardcoded markup in ROWs 1-7. Write a `useEffect` hook to fetch from `/api/v1/projects/{slug}/command` based on the router `params.slug`.
-3. Add a `.env.local` to Mission Control defining `NEXT_PUBLIC_ENGINE_URL=http://localhost:8000` (or whichever port OpenClaw lives on) so the UI knows where the Gateway is.
+**Phase 2: Verifying the Frontend Connection**
+1. Do NOT write any Next.js code. The frontend has already been built and deployed with exact `fetch()` hooks targeting `http://localhost:8000/api/v1/projects`.
+2. To test your new backend, simply run the backend server on port 8000. 
+3. The Mission Control Next.js app (running separately on port 3000) will automatically poll your API. If your API responses match the JSON arrays defined in Section 2, the frontend UI will perfectly render the live telemetry.
 
 **End of Specification.**
